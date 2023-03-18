@@ -1,6 +1,6 @@
 {
   "name": "classno",
-  "version": "0.0.0-alpha.01",
+  "version": "0.0.0-alpha.02",
   "description": "",
   "main": "lib/index.js",
   "bin": {
@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "Roj <ez@roj.im>",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@types/stylus": "^0.48.38",
     "typescript": "^5.0.2"
