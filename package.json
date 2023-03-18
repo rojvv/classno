@@ -1,0 +1,23 @@
+{
+  "name": "classno",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "bin": {
+    "classno": "lib/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Roj <ez@roj.im>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/stylus": "^0.48.38",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "stylus": "^0.59.0",
+    "ts-morph": "^17.0.1"
+  }
+}
