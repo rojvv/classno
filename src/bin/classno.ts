@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import { render as render_ } from "stylus";
 import { ImportDeclaration, Project, SyntaxKind } from "ts-morph";
-import { MODULE_NAME } from "./constants";
+import { MODULE_NAME } from "../lib/constants";
 
 function getTriggers(importDeclarations: ImportDeclaration[]) {
   importDeclarations = importDeclarations
@@ -72,7 +72,7 @@ function getClasses(project: Project) {
   return classDefinitions;
 }
 
-export function render(classes: [string, string][]) {
+function render(classes: [string, string][]) {
   let css = "";
   for (const [className, def] of classes) {
     css += render_(`.${className} ${def}`);
