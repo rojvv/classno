@@ -149,7 +149,7 @@ const myComponent = classno`${"my-component"}
   height 100px
   background-color green
 
-  &:hover
+  :hover
       opacity 0.5
 
       @media (prefers-color-scheme: dark)
