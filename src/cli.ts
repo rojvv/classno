@@ -43,13 +43,19 @@ export function getStylus(
   if (template.isKind(SyntaxKind.TemplateExpression)) {
     const spans = template.getTemplateSpans();
     if (spans.length > 1) {
-      throw new ClassnoError("Invalid syntax.", expression);
+      throw new ClassnoError(
+        "Cannot have more than one interpolations.",
+        expression,
+      );
     }
 
     const className = spans[0].getFirstChildIfKind(SyntaxKind.StringLiteral)
       ?.getLiteralText();
     if (className == undefined) {
-      throw new ClassnoError("Expected a string literal.", expression);
+      throw new ClassnoError(
+        "The first interpolation is not a string literal.",
+        expression,
+      );
     }
 
     if (className.length == 0) {
@@ -58,9 +64,9 @@ export function getStylus(
 
     // TODO: check for invalid class names
 
-    const stylus = spans[0].getLiteral().getLiteralText();
+    const stylus = spans[0].getLiteral().getLiteralText().trim();
     if (stylus.length == 0) {
-      throw new ClassnoError("Missing declaration.", expression);
+      throw new ClassnoError("Empty declaration.", expression);
     }
 
     return [className, stylus];
