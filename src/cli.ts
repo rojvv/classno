@@ -59,21 +59,21 @@ export function getStylus(
     }
 
     if (className.length == 0) {
-      throw new ClassnoError("Empty class name.", expression);
+      throw new ClassnoError("Empty class name", expression);
     }
 
     // TODO: check for invalid class names
 
     const stylus = spans[0].getLiteral().getLiteralText().trim();
     if (stylus.length == 0) {
-      throw new ClassnoError("Empty declaration.", expression);
+      throw new ClassnoError("Empty declaration", expression);
     }
 
     return [className, stylus];
   } else {
     const stylus = template.getLiteralValue().trim();
     if (!stylus) {
-      throw new ClassnoError("Empty declaration.", expression);
+      throw new ClassnoError("Empty declaration", expression);
     }
 
     return [null, stylus];
@@ -86,6 +86,12 @@ export function collectStylus(sourceFiles: SourceFile[]) {
 
   for (const sourceFile of sourceFiles) {
     const functionNames = getFunctionNames(sourceFile.getImportDeclarations());
+
+    const calls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)
+      .filter((v) => functionNames.includes(v.getExpression().getText()));
+    if (calls.length > 0) {
+      throw new ClassnoError("Expected a template literal.", calls[0]);
+    }
 
     const expressions = sourceFile.getDescendantsOfKind(
       SyntaxKind.TaggedTemplateExpression,

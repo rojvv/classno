@@ -41,6 +41,7 @@ test("collectStylus", (t) => {
     t.notThrows(() => collectStylus([sourceFile]));
   }
 
+  throws("classno();");
   throws("classno`${''} ${''}`;");
   throws("classno`${a}`;");
   throws("classno`${''}`;");
