@@ -1,7 +1,7 @@
 import { Project } from "ts-morph";
 import test from "ava";
 import { MODULE_NAME } from "./constants";
-import { collectStylus, getFunctionNames } from "./builder";
+import { collectStylus, getFunctionNames } from "./cli";
 
 function createSourceFile(sourceCode: string) {
   const project = new Project();

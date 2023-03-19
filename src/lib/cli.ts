@@ -1,6 +1,8 @@
+import { readFileSync, writeFileSync } from "fs";
 import {
   CallExpression,
   ImportDeclaration,
+  Project,
   SourceFile,
   SyntaxKind,
 } from "ts-morph";
@@ -84,4 +86,16 @@ export function collectStylus(sourceFiles: SourceFile[]) {
 
 export function buildCSS(sourceFiles: SourceFile[]) {
   return render(collectStylus(sourceFiles));
+}
+
+export function main() {
+  const config = JSON.parse(readFileSync(".classno").toString());
+
+  const project = new Project();
+
+  project.addSourceFilesAtPaths(config.paths);
+
+  const css = buildCSS(project.getSourceFiles());
+
+  writeFileSync(config.out, css);
 }
