@@ -101,7 +101,7 @@ export function collectStylus(sourceFiles: SourceFile[]) {
     }
   }
 
-  return sources.filter(([v]) => v == null).map(([v]) => v).join("\n") +
+  return sources.filter(([v]) => v == null).map(([, v]) => v).join("\n") +
     sources.filter(([v]) => v != null)
       .map(([className, decls]) => `.${className} ${decls}`)
       .join("\n");
