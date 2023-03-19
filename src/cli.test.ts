@@ -1,7 +1,9 @@
 import { Project } from "ts-morph";
 import test from "ava";
 import { MODULE_NAME } from "./constants";
-import { collectStylus, getFunctionNames } from "./cli";
+import { buildCSS, collectStylus, getFunctionNames } from "./cli";
+
+const imports = `import classno from "${MODULE_NAME}";`;
 
 function createSourceFile(sourceCode: string) {
   const project = new Project();
@@ -21,8 +23,6 @@ test("getFunctionNames", (t) => {
 });
 
 test("collectStylus", (t) => {
-  const imports = `import classno from "${MODULE_NAME}";`;
-
   function throws(exp: string) {
     let sourceFile = createSourceFile(`
   ${imports}
@@ -49,4 +49,21 @@ test("collectStylus", (t) => {
 
   throws("classno``");
   notThrows("classno`html { scroll-behavior: smooth; }`");
+});
+
+test("buildCSS", (t) => {
+  const sourceFile = createSourceFile(`
+  ${imports}
+
+  classno\`
+  html
+    scroll-smooth
+  \`;
+
+  classno\`"x = 1"\`;
+
+  classno\`\${"y"} { color: green; }\`;
+  `);
+
+  t.notThrows(() => buildCSS([sourceFile]));
 });

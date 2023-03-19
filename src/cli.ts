@@ -1,6 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
 import {
-  CallExpression,
   ImportDeclaration,
   Project,
   SourceFile,
