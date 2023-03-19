@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync } from "fs";
-import { render } from "stylus";
 import { Project } from "ts-morph";
-import { collectStylus } from "../lib/utilities";
+import { buildCSS } from "../lib/builder";
 
 const config = JSON.parse(readFileSync(".classno").toString());
 
@@ -10,6 +9,6 @@ const project = new Project();
 
 project.addSourceFilesAtPaths(config.paths);
 
-const css = render(collectStylus(project.getSourceFiles()));
+const css = buildCSS(project.getSourceFiles());
 
 writeFileSync(config.out, css);

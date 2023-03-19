@@ -1,5 +1,11 @@
-import { ImportDeclaration, SourceFile, SyntaxKind } from "ts-morph";
-import { MODULE_NAME } from "../lib/constants";
+import {
+  CallExpression,
+  ImportDeclaration,
+  SourceFile,
+  SyntaxKind,
+} from "ts-morph";
+import { render } from "stylus";
+import { MODULE_NAME } from "./constants";
 
 export function getFunctionNames(importDeclarations: ImportDeclaration[]) {
   importDeclarations = importDeclarations
@@ -26,9 +32,33 @@ export function getFunctionNames(importDeclarations: ImportDeclaration[]) {
   return functionNames;
 }
 
+export function getStylus(call: CallExpression): [string, string] {
+  const args = call.getArguments();
+  if (args.length != 2) {
+    throw new Error(`Invalid args length: ${args.length}`);
+  }
+  if (!args[0].isKind(SyntaxKind.StringLiteral)) {
+    throw new Error("First argument is not a string literal");
+  }
+  if (!args[1].isKind(SyntaxKind.NoSubstitutionTemplateLiteral)) {
+    throw new Error(
+      "Second argument is not a no substitution template literal",
+    );
+  }
+  const className = args[0].getLiteralValue();
+  if (className.trim().length == 0) {
+    throw new Error("className is empty");
+  }
+  const def = args[1].getLiteralValue();
+  if (def.trim().length == 0) {
+    throw new Error("styl is empty");
+  }
+  return [className, def];
+}
+
 export function collectStylus(sourceFiles: SourceFile[]) {
   const definedClasses = new Set();
-  const classDefinitions = new Array<[string, string]>();
+  const sources = new Array<[string, string]>();
 
   for (const sourceFile of sourceFiles) {
     const functionNames = getFunctionNames(sourceFile.getImportDeclarations());
@@ -37,27 +67,10 @@ export function collectStylus(sourceFiles: SourceFile[]) {
       .filter((v) => functionNames.includes(v.getExpression().getText()));
 
     for (const call of calls) {
-      const args = call.getArguments();
-      if (args.length != 2) {
-        throw new Error(`Invalid args length: ${call.getText()}`);
-      }
-      if (!args[0].isKind(SyntaxKind.StringLiteral)) {
-        throw new Error("First argument is not a string literal");
-      }
-      if (!args[1].isKind(SyntaxKind.NoSubstitutionTemplateLiteral)) {
-        throw new Error(
-          "Second argument is not a no substitution template literal",
-        );
-      }
-      const className = args[0].getLiteralValue();
-      if (className.trim().length == 0) {
-        throw new Error("className is empty");
-      }
-      const def = args[1].getLiteralValue();
-      if (def.trim().length == 0) {
-        throw new Error("styl is empty");
-      }
-      classDefinitions.push([className, def]);
+      const source = getStylus(call);
+      const className = source[0];
+
+      sources.push(source);
       if (definedClasses.has(className)) {
         console.warn(`${className} is defined more than once`);
       }
@@ -65,6 +78,10 @@ export function collectStylus(sourceFiles: SourceFile[]) {
     }
   }
 
-  return classDefinitions.map(([className, def]) => `.${className} ${def}`)
+  return sources.map(([className, decls]) => `.${className} ${decls}`)
     .join("\n");
+}
+
+export function buildCSS(sourceFiles: SourceFile[]) {
+  return render(collectStylus(sourceFiles));
 }
