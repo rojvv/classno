@@ -171,7 +171,7 @@ const dropdownOpen = classno`${"dropdown-open"}
    /* Conditional styles */
 `;
 
-const dropdownClosed = classno`${"dropdown-closed"},
+const dropdownClosed = classno`${"dropdown-closed"}
   /* Conditional styles */
 `;
 
