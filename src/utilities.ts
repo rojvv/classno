@@ -6,7 +6,7 @@ export class ClassnoError extends Error {
     super(message);
   }
 
-  printAndExit(): never {
+  print() {
     const filePath = relative(
       process.cwd(),
       this.node.getSourceFile().getFilePath(),
@@ -16,6 +16,10 @@ export class ClassnoError extends Error {
       `${filePath}:${line}
         \x1B[31mhi${this.message}\x1B[39m`,
     );
+  }
+
+  printAndExit(): never {
+    this.print();
     process.exit(1);
   }
 }

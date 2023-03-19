@@ -30,6 +30,7 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
+    "chokidar": "^3.5.3",
     "stylus": "^0.59.0",
     "ts-morph": "^17.0.1"
   }

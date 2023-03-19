@@ -7,6 +7,7 @@ import {
   SyntaxKind,
 } from "ts-morph";
 import { render } from "stylus";
+import chokidar from "chokidar";
 import { MODULE_NAME } from "./constants";
 import { ClassnoError } from "./utilities";
 
@@ -90,9 +91,14 @@ export function buildCSS(sourceFiles: SourceFile[]) {
   return render(collectStylus(sourceFiles));
 }
 
-export function main() {
-  const config = JSON.parse(readFileSync(".classno").toString());
-
+interface Config {
+  paths: readonly string[];
+  out: string;
+}
+function build(
+  config: Config,
+  exitOnErr = true,
+) {
   const project = new Project();
 
   project.addSourceFilesAtPaths(config.paths);
@@ -102,7 +108,7 @@ export function main() {
   try {
     css = buildCSS(project.getSourceFiles());
   } catch (err) {
-    if (err instanceof ClassnoError) {
+    if (err instanceof ClassnoError && exitOnErr) {
       err.printAndExit();
     }
 
@@ -110,4 +116,48 @@ export function main() {
   }
 
   writeFileSync(config.out, css);
+}
+
+function watch(config: Config, clear: boolean) {
+  function rebuild() {
+    if (clear) {
+      console.clear();
+    }
+
+    let failed = false;
+
+    try {
+      const project = new Project();
+      project.addSourceFilesAtPaths(config.paths);
+
+      const css = buildCSS(project.getSourceFiles());
+      writeFileSync(config.out, css);
+    } catch (err) {
+      if (err instanceof ClassnoError) {
+        err.print();
+      } else {
+        console.error(err);
+      }
+      failed = true;
+    }
+
+    if (failed) {
+      console.info("Failed to rebuild. Watching for changes...");
+    } else {
+      console.info("Rebuilt. Watching for changes...");
+    }
+  }
+
+  rebuild();
+  chokidar.watch(config.paths).on("all", rebuild);
+}
+
+export function main() {
+  const config = JSON.parse(readFileSync(".classno").toString());
+
+  if (process.argv.includes("--watch")) {
+    watch(config, process.argv.includes("--clear"));
+  } else {
+    build(config);
+  }
 }

@@ -9,7 +9,7 @@ function createSourceFile(sourceCode: string) {
 }
 
 test("getFunctionNames", (t) => {
-  const sourceFile = createSourceFile(`
+  const sourceFile = createSourceFile(`s
   import classno from "${MODULE_NAME}";
   import { default as classno2 } from "${MODULE_NAME}";
   import classno4 from "some-other-${MODULE_NAME}";
