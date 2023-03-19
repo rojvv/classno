@@ -99,7 +99,9 @@ export function collectStylus(sourceFiles: SourceFile[]) {
       sources.push(source);
       if (className != null) {
         if (definedClasses.has(className)) {
-          console.warn(`${className} is defined more than once`);
+          console.warn(
+            `The class name ${className} is declared more than once.`,
+          );
         }
         definedClasses.add(className);
       }
