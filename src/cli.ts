@@ -5,6 +5,7 @@ import {
   Project,
   SourceFile,
   SyntaxKind,
+  TaggedTemplateExpression,
 } from "ts-morph";
 import { render } from "stylus";
 import chokidar from "chokidar";
@@ -36,55 +37,74 @@ export function getFunctionNames(importDeclarations: ImportDeclaration[]) {
   return functionNames;
 }
 
-export function getStylus(call: CallExpression): [string, string] {
-  const args = call.getArguments();
-  if (args.length != 2) {
-    throw new ClassnoError("Missing argument(s)", call);
+export function getStylus(
+  expression: TaggedTemplateExpression,
+): [string | null, string] {
+  const template = expression.getTemplate();
+  if (template.isKind(SyntaxKind.TemplateExpression)) {
+    const spans = template.getTemplateSpans();
+    if (spans.length > 1) {
+      throw new ClassnoError("Invalid syntax.", expression);
+    }
+
+    const className = spans[0].getFirstChildIfKind(SyntaxKind.StringLiteral)
+      ?.getLiteralText();
+    if (className == undefined) {
+      throw new ClassnoError("Expected a string literal.", expression);
+    }
+
+    if (className.length == 0) {
+      throw new ClassnoError("Empty class name.", expression);
+    }
+
+    // TODO: check for invalid class names
+
+    const stylus = spans[0].getLiteral().getLiteralText();
+    if (stylus.length == 0) {
+      throw new ClassnoError("Missing declaration.", expression);
+    }
+
+    return [className, stylus];
+  } else {
+    const stylus = template.getLiteralValue().trim();
+    if (!stylus) {
+      throw new ClassnoError("Empty declaration.", expression);
+    }
+
+    return [null, stylus];
   }
-  if (!args[0].isKind(SyntaxKind.StringLiteral)) {
-    throw new ClassnoError("The first argument is not a string literal.", call);
-  }
-  if (!args[1].isKind(SyntaxKind.NoSubstitutionTemplateLiteral)) {
-    throw new ClassnoError(
-      "The second argument is either not template literal or has substitutions.",
-      call,
-    );
-  }
-  const className = args[0].getLiteralValue();
-  if (className.trim().length == 0) {
-    throw new ClassnoError("Empty argument", args[0]);
-  }
-  const def = args[1].getLiteralValue();
-  if (def.trim().length == 0) {
-    throw new ClassnoError("Empty argument", args[1]);
-  }
-  return [className, def];
 }
 
 export function collectStylus(sourceFiles: SourceFile[]) {
   const definedClasses = new Set();
-  const sources = new Array<[string, string]>();
+  const sources = new Array<[string | null, string]>();
 
   for (const sourceFile of sourceFiles) {
     const functionNames = getFunctionNames(sourceFile.getImportDeclarations());
 
-    const calls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)
-      .filter((v) => functionNames.includes(v.getExpression().getText()));
+    const expressions = sourceFile.getDescendantsOfKind(
+      SyntaxKind.TaggedTemplateExpression,
+    )
+      .filter((v) => functionNames.includes(v.getTag().getText()));
 
-    for (const call of calls) {
-      const source = getStylus(call);
+    for (const expression of expressions) {
+      const source = getStylus(expression);
       const className = source[0];
 
       sources.push(source);
-      if (definedClasses.has(className)) {
-        console.warn(`${className} is defined more than once`);
+      if (className != null) {
+        if (definedClasses.has(className)) {
+          console.warn(`${className} is defined more than once`);
+        }
+        definedClasses.add(className);
       }
-      definedClasses.add(className);
     }
   }
 
-  return sources.map(([className, decls]) => `.${className} ${decls}`)
-    .join("\n");
+  return sources.filter(([v]) => v == null).join("\n") +
+    sources.filter(([v]) => v != null)
+      .map(([className, decls]) => `.${className} ${decls}`)
+      .join("\n");
 }
 
 export function buildCSS(sourceFiles: SourceFile[]) {

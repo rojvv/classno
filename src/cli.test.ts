@@ -22,64 +22,31 @@ test("getFunctionNames", (t) => {
 
 test("collectStylus", (t) => {
   const imports = `import classno from "${MODULE_NAME}";`;
-  let sourceFile = createSourceFile(`
+
+  function throws(exp: string) {
+    let sourceFile = createSourceFile(`
   ${imports}
 
-  classno();
+  ${exp}
     `);
-  t.throws(() => collectStylus([sourceFile]));
+    t.throws(() => collectStylus([sourceFile]));
+  }
 
-  sourceFile = createSourceFile(`
+  function notThrows(exp: string) {
+    let sourceFile = createSourceFile(`
   ${imports}
 
-  classno("someClassName");
+  ${exp}
     `);
-  t.throws(() => collectStylus([sourceFile]));
+    t.notThrows(() => collectStylus([sourceFile]));
+  }
 
-  sourceFile = createSourceFile(`
-  ${imports}
+  throws("classno`${''} ${''}`;");
+  throws("classno`${a}`;");
+  throws("classno`${''}`;");
+  throws("classno`${'a'}`;");
+  notThrows("classno`${'a'}\n\tcolor green`;");
 
-  const className = "someClassName";
-  classno(className, \`
-    color green
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
-
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  const color = "green";
-  classno("someClassName", \`
-    color \${color}
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
-
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  classno("", \`
-    color green
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
-
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  classno("someClassName", \`
-    
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
-
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  classno("someClassName", \`
-    color red
-  \`);
-    `);
-  t.notThrows(() => collectStylus([sourceFile]));
+  throws("classno``");
+  notThrows("classno`html { scroll-behavior: smooth; }`");
 });
