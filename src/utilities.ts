@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import type { Node } from "ts-morph";
 import { relative } from "path";
 
@@ -15,7 +14,7 @@ export class ClassnoError extends Error {
     const line = this.node.getStartLineNumber();
     console.error(
       `${filePath}:${line}
-        ${chalk.red(this.message)}`,
+        \x1B[31mhi${this.message}\x1B[39m`,
     );
     process.exit(1);
   }

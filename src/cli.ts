@@ -7,8 +7,8 @@ import {
   SyntaxKind,
 } from "ts-morph";
 import { render } from "stylus";
-import { MODULE_NAME } from "./constants.js";
-import { ClassnoError } from "./utilities.js";
+import { MODULE_NAME } from "./constants";
+import { ClassnoError } from "./utilities";
 
 export function getFunctionNames(importDeclarations: ImportDeclaration[]) {
   importDeclarations = importDeclarations

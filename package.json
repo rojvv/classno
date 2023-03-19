@@ -1,11 +1,10 @@
 {
-  "type": "module",
   "name": "classno",
-  "version": "0.0.0-alpha.05",
+  "version": "0.0.0-alpha.06",
   "description": "",
   "main": "lib/index.js",
   "bin": {
-    "classno": "bin/classno.js"
+    "classno": "bin/classno"
   },
   "scripts": {
     "test": "NODE_NO_WARNINGS=1 ava",
@@ -31,7 +30,6 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "chalk": "^5.2.0",
     "stylus": "^0.59.0",
     "ts-morph": "^17.0.1"
   }
