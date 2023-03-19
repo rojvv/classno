@@ -1,24 +1,25 @@
 {
+  "type": "module",
   "name": "classno",
   "version": "0.0.0-alpha.04",
   "description": "",
-  "main": "dist/lib/index.js",
+  "main": "lib/index.js",
   "bin": {
-    "classno": "dist/bin/classno.js"
+    "classno": "bin/classno.js"
   },
   "scripts": {
-    "test": "ava",
-    "build": "rimraf dist/ && tsc"
+    "test": "NODE_NO_WARNINGS=1 ava",
+    "build": "rimraf lib/ && tsc"
   },
   "keywords": [],
   "author": "Roj <ez@roj.im>",
   "license": "GPL-3.0-or-later",
   "ava": {
-    "extensions": [
-      "ts"
-    ],
-    "require": [
-      "ts-node/register"
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
     ]
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
+    "chalk": "^5.2.0",
     "stylus": "^0.59.0",
     "ts-morph": "^17.0.1"
   }

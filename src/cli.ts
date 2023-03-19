@@ -7,7 +7,8 @@ import {
   SyntaxKind,
 } from "ts-morph";
 import { render } from "stylus";
-import { MODULE_NAME } from "./constants";
+import { MODULE_NAME } from "./constants.js";
+import { ClassnoError } from "./utilities.js";
 
 export function getFunctionNames(importDeclarations: ImportDeclaration[]) {
   importDeclarations = importDeclarations
@@ -37,23 +38,24 @@ export function getFunctionNames(importDeclarations: ImportDeclaration[]) {
 export function getStylus(call: CallExpression): [string, string] {
   const args = call.getArguments();
   if (args.length != 2) {
-    throw new Error(`Invalid args length: ${args.length}`);
+    throw new ClassnoError("Missing argument(s)", call);
   }
   if (!args[0].isKind(SyntaxKind.StringLiteral)) {
-    throw new Error("First argument is not a string literal");
+    throw new ClassnoError("The first argument is not a string literal.", call);
   }
   if (!args[1].isKind(SyntaxKind.NoSubstitutionTemplateLiteral)) {
-    throw new Error(
-      "Second argument is not a no substitution template literal",
+    throw new ClassnoError(
+      "The second argument is either not template literal or has substitutions.",
+      call,
     );
   }
   const className = args[0].getLiteralValue();
   if (className.trim().length == 0) {
-    throw new Error("className is empty");
+    throw new ClassnoError("Empty argument", args[0]);
   }
   const def = args[1].getLiteralValue();
   if (def.trim().length == 0) {
-    throw new Error("styl is empty");
+    throw new ClassnoError("Empty argument", args[1]);
   }
   return [className, def];
 }
@@ -95,7 +97,17 @@ export function main() {
 
   project.addSourceFilesAtPaths(config.paths);
 
-  const css = buildCSS(project.getSourceFiles());
+  let css: string;
+
+  try {
+    css = buildCSS(project.getSourceFiles());
+  } catch (err) {
+    if (err instanceof ClassnoError) {
+      err.printAndExit();
+    }
+
+    throw err;
+  }
 
   writeFileSync(config.out, css);
 }
