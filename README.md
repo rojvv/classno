@@ -31,7 +31,7 @@ ways, it works like Tailwind.
 
 ## Known Limitations
 
-- Only works with TypeScript/ESM source files.
+- Only works with source files with ESM import syntax.
 
 ## Installation
 
@@ -88,22 +88,20 @@ Extend the `scripts` option of your `package.json` in a way like the following.
     }
 ```
 
-> If you’re using [`concurrently`](https://npm.im/concurrently), don’t forget to
-> install it to your `devDependencies`.
+> If you’re going to use [`concurrently`](https://npm.im/concurrently), don’t
+> forget to install it to your `devDependencies`.
 
 ## Usage
 
-To use classno, import the default function exported from `classno`. It expects
-a template literal with no interpolation or with string literal interpolation in
-its beginning.
+To use classno, import the default function exported from `classno`. There are
+two ways of using it:
 
-If passed, the string literal interpolation should be a valid CSS class name,
-and the rest should be a valid CSS (or Stylus) _block_. Otherwise, the contents
-of the template literal should be valid CSS.
-
-The function returns the passed class name so it can applied to components
-without duplication. In the built CSS, the first argument (the class name) will
-have the styles in the second argument (the CSS/Stylus block).
+1. With a template literal that has an interpolation of a string literal at its
+   beginning (e.g. `` `${"my-component"} ...` ``): The passed string literal
+   must be a valid class name, and it will also be the returned value. The rest
+   must be a valid CSS (or Stylus) _block_.
+2. With a template literal that has no interpolations (e.g. `` `...` ``): This
+   must be valid CSS (or Sylus). No value will be returned.
 
 ### Declaring a Class
 
