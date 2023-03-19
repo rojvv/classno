@@ -101,10 +101,11 @@ export function collectStylus(sourceFiles: SourceFile[]) {
     }
   }
 
-  return sources.filter(([v]) => v == null).map(([, v]) => v).join("\n") +
+  return sources.filter(([v]) => v == null).map(([, v]) => v).join("\n\n") +
+    "\n\n" +
     sources.filter(([v]) => v != null)
       .map(([className, decls]) => `.${className} ${decls}`)
-      .join("\n");
+      .join("\n\n");
 }
 
 export function buildCSS(sourceFiles: SourceFile[]) {
