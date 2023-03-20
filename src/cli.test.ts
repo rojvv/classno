@@ -22,23 +22,28 @@ test("getFunctionNames", (t) => {
   t.deepEqual(functionNames, ["classno", "classno2"]);
 });
 
+function collectStylusFromSourceCode(sourceCode: string) {
+  let sourceFile = createSourceFile(sourceCode);
+  return collectStylus([sourceFile]);
+}
+
 test("collectStylus", (t) => {
   function throws(exp: string) {
-    let sourceFile = createSourceFile(`
+    let sourceCode = `
   ${imports}
 
   ${exp}
-    `);
-    t.throws(() => collectStylus([sourceFile]));
+  `;
+    t.throws(() => collectStylusFromSourceCode(sourceCode));
   }
 
   function notThrows(exp: string) {
-    let sourceFile = createSourceFile(`
+    let sourceCode = `
   ${imports}
 
   ${exp}
-    `);
-    t.notThrows(() => collectStylus([sourceFile]));
+    `;
+    t.notThrows(() => collectStylusFromSourceCode(sourceCode));
   }
 
   throws("classno();");
@@ -50,6 +55,16 @@ test("collectStylus", (t) => {
 
   throws("classno``");
   notThrows("classno`html { scroll-behavior: smooth; }`");
+
+  const stylus = collectStylusFromSourceCode(`
+  ${imports}
+
+  classno\`\${"a"}
+  color green
+  \`;
+  `);
+
+  t.deepEqual(stylus.trim(), ".a \n  color green");
 });
 
 test("buildCSS", (t) => {

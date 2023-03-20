@@ -64,15 +64,15 @@ export function getStylus(
 
     // TODO: check for invalid class names
 
-    const stylus = spans[0].getLiteral().getLiteralText().trim();
-    if (stylus.length == 0) {
+    const stylus = spans[0].getLiteral().getLiteralText();
+    if (stylus.trim().length == 0) {
       throw new ClassnoError("Empty declaration", expression);
     }
 
     return [className, stylus];
   } else {
-    const stylus = template.getLiteralValue().trim();
-    if (!stylus) {
+    const stylus = template.getLiteralValue();
+    if (!stylus.trim()) {
       throw new ClassnoError("Empty declaration", expression);
     }
 
