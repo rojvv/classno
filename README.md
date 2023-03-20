@@ -16,6 +16,7 @@
   - [Declaring a Class](#declaring-a-class)
   - [Using Stylus Syntax](#using-stylus-syntax)
   - [Conditional Styles](#conditional-styles)
+  - [Global Styles](#global-styles)
 - [PS](#ps)
 
 ## Introduction
@@ -30,7 +31,7 @@ ways, it works like Tailwind.
 
 ## Known Limitations
 
-- Only works with TypeScript/ESM source files.
+- Only works with source files with ESM import syntax.
 
 ## Installation
 
@@ -87,38 +88,34 @@ Extend the `scripts` option of your `package.json` in a way like the following.
     }
 ```
 
-> If you’re using [`concurrently`](https://npm.im/concurrently), don’t forget to
-> install it to your `devDependencies`.
+> If you’re going to use [`concurrently`](https://npm.im/concurrently), don’t
+> forget to install it to your `devDependencies`.
 
 ## Usage
 
-To use classno, import the default function exported from `classno`. It expects
-a string literal as its first argument, and a template literal with no
-substitution as its second argument.
+To use classno, import the default function exported from `classno`. There are
+two ways of using it:
 
-The first argument should be a valid CSS class name, and the second argument
-should be a valid CSS (or Stylus) block.
-
-The function returns the passed class name so it can applied to components
-without duplication. In the built CSS, the first argument (the class name) will
-have the styles in the second argument (the CSS/Stylus block).
+1. With a template literal that has an interpolation of a string literal at its
+   beginning (e.g. `` `${"my-component"} ...` ``): The passed string literal
+   must be a valid class name, and it will also be the returned value. The rest
+   must be a valid CSS (or Stylus) _block_.
+2. With a template literal that has no interpolations (e.g. `` `...` ``): This
+   must be valid CSS (or Sylus). No value will be returned.
 
 ### Declaring a Class
 
 ```tsx
 import classno from "classno";
 
-const divClassName = classno(
-  "my-component",
-  `
-    width: 100px;
-    height: 100px;
-    background-color: green;
-  `,
-);
+const myComponent = classno`${"my-component"}
+  width: 100px;
+  height: 100px;
+  background-color: green;
+`;
 
 export default function MyComponent() {
-  return <div className={divClassName}></div>;
+  return <div className={myComponent}></div>;
 }
 ```
 
@@ -127,44 +124,38 @@ export default function MyComponent() {
 Like mentioned above, you can also use Stylus:
 
 ```tsx
-const divClassName = classno(
-  "my-component",
-  `
-    width: 100px;
-    height: 100px;
-    background-color: green;
+const myComponent = classno`${"my-component"}
+  width: 100px;
+  height: 100px;
+  background-color: green;
 
-    &:hover {
-        opacity: 0.5;
+  &:hover {
+      opacity: 0.5;
 
-        @media (prefers-color-scheme: dark) {
-            & > p {
-                text: blue;
-            }
-        }
-    }
-  `,
-);
+      @media (prefers-color-scheme: dark) {
+          & > p {
+              text: blue;
+          }
+      }
+  }
+`;
 ```
 
 This also works:
 
 ```tsx
-const divClassName = classno(
-  "my-component",
-  `
-    width 100px
-    height 100px
-    background-color green
+const myComponent = classno`${"my-component"}
+  width 100px
+  height 100px
+  background-color green
 
-    &:hover
-        opacity 0.5
+  :hover
+      opacity 0.5
 
-        @media (prefers-color-scheme: dark)
-            > p
-                text blue
-  `,
-);
+      @media (prefers-color-scheme: dark)
+          > p
+              text blue
+`;
 ```
 
 ### Conditional Styles
@@ -172,33 +163,42 @@ const divClassName = classno(
 Conditional styles can be applied like this:
 
 ```tsx
-const dropdown = classno(
-  "dropdown",
-  `
-    /* Your main styles here, perhaps some transition-duration? */
-`,
-);
+const dropdown = classno`${"dropdown"}
+  /* Your main styles here, perhaps some transition-duration? */
+`;
 
-const openDropdown = classno(
-  "dropdown-open",
-  `
+const dropdownOpen = classno`${"dropdown-open"}
    /* Conditional styles */
-`,
-);
+`;
 
-const closedDropdown = classno(
-  "dropdown-open",
-  `
-   /* Conditional styles */
-`,
-);
+const dropdownClosed = classno`${"dropdown-closed"}
+  /* Conditional styles */
+`;
 
 export default function Dropdown() {
   return (
-    <div className={`${dropdown} ${open ? openDropdown : closedDropdown}`}>
+    <div className={`${dropdown} ${open ? dropdownOpen : dropdownClosed}`}>
     </div>
   );
 }
+```
+
+### Global Styles
+
+You can also declare global styles. Just don’t pass the class name:
+
+```tsx
+classno`
+  my_black = rgba(10, 10, 10, 0.8)
+
+  apply-common-max-width()
+    max-width 980px
+    margin 0 auto
+    width 100%
+
+  html
+    scroll-behavior smooth
+`;
 ```
 
 ## PS

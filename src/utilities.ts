@@ -14,7 +14,7 @@ export class ClassnoError extends Error {
     const line = this.node.getStartLineNumber();
     console.error(
       `${filePath}:${line}
-        \x1B[31mhi${this.message}\x1B[39m`,
+        \x1B[31m${this.message}\x1B[39m`,
     );
   }
 

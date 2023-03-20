@@ -1,7 +1,9 @@
 import { Project } from "ts-morph";
 import test from "ava";
 import { MODULE_NAME } from "./constants";
-import { collectStylus, getFunctionNames } from "./cli";
+import { buildCSS, collectStylus, getFunctionNames } from "./cli";
+
+const imports = `import classno from "${MODULE_NAME}";`;
 
 function createSourceFile(sourceCode: string) {
   const project = new Project();
@@ -21,65 +23,48 @@ test("getFunctionNames", (t) => {
 });
 
 test("collectStylus", (t) => {
-  const imports = `import classno from "${MODULE_NAME}";`;
-  let sourceFile = createSourceFile(`
+  function throws(exp: string) {
+    let sourceFile = createSourceFile(`
   ${imports}
 
-  classno();
+  ${exp}
     `);
-  t.throws(() => collectStylus([sourceFile]));
+    t.throws(() => collectStylus([sourceFile]));
+  }
 
-  sourceFile = createSourceFile(`
+  function notThrows(exp: string) {
+    let sourceFile = createSourceFile(`
   ${imports}
 
-  classno("someClassName");
+  ${exp}
     `);
-  t.throws(() => collectStylus([sourceFile]));
+    t.notThrows(() => collectStylus([sourceFile]));
+  }
 
-  sourceFile = createSourceFile(`
+  throws("classno();");
+  throws("classno`${''} ${''}`;");
+  throws("classno`${a}`;");
+  throws("classno`${''}`;");
+  throws("classno`${'a'}`;");
+  notThrows("classno`${'a'}\n\tcolor green`;");
+
+  throws("classno``");
+  notThrows("classno`html { scroll-behavior: smooth; }`");
+});
+
+test("buildCSS", (t) => {
+  const sourceFile = createSourceFile(`
   ${imports}
 
-  const className = "someClassName";
-  classno(className, \`
-    color green
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
+  classno\`
+  html
+    scroll-smooth
+  \`;
 
-  sourceFile = createSourceFile(`
-  ${imports}
+  classno\`"x = 1"\`;
 
-  const color = "green";
-  classno("someClassName", \`
-    color \${color}
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
+  classno\`\${"y"} { color: green; }\`;
+  `);
 
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  classno("", \`
-    color green
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
-
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  classno("someClassName", \`
-    
-  \`);
-    `);
-  t.throws(() => collectStylus([sourceFile]));
-
-  sourceFile = createSourceFile(`
-  ${imports}
-
-  classno("someClassName", \`
-    color red
-  \`);
-    `);
-  t.notThrows(() => collectStylus([sourceFile]));
+  t.notThrows(() => buildCSS([sourceFile]));
 });
