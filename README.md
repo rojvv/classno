@@ -38,19 +38,19 @@ ways, it works like Tailwind.
 ### `npm`
 
 ```shell
-npm install -D classno
+npm install classno
 ```
 
 ### `yarn`
 
 ```shell
-yarn add -D classno
+yarn add classno
 ```
 
 ### `pnpm`
 
 ```shell
-pnpm add -D classno
+pnpm add classno
 ```
 
 ## Setup
