@@ -63,7 +63,7 @@ similar to this:
 ```json
 {
   "paths": ["src/**/*.ts", "src/**/*.tsx"],
-  "out": "app/styles/main.css"
+  "out": "src/styles/main.css"
 }
 ```
 
